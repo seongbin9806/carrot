@@ -31,11 +31,14 @@
 
         .post-item {
             border: 1px solid #ddd;
-            padding: 15px;
+            padding: 45px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
+            text-decoration: unset;
+            color: black;
+            display: inline-block;
         }
 
         .post-item h3 {
@@ -71,23 +74,42 @@
         .post-item .delete-button:hover {
             background-color: #c9302c;
         }
+
     </style>
     <script type="text/javascript" src="/assets/js/util.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>즐겨찾기 목록</h1>
-        <div class="grid-container">
-            <div class="post-item">
-                <h3>TEST1</h3>
-                <p class="price">10,000원</p>
-		        <p>학과: 컴퓨터공학과</p>
-                <p>카테고리: 전자제품</p>
-                <p>상태: 거래 가능</p>
-                <button class="delete-button"> 즐겨찾기 삭제</button>
-            </div>
-          
-        </div>
-    </div>
+<div class="container">
+    <h1>즐겨찾기 목록</h1>
+
+    {{#favoritesList}}
+        <a href="/itemDetails?postId={{post.postId}}" class="post-item">
+        <h3>{{post.postName}}</h3>
+        <p class="price">{{post.amount}}원</p>
+        <p>학과: {{post.student.departmentName}}</p>
+        <p>카테고리: {{post.categoryName}}</p>
+        <p>상태: {{post.dealStatus}}</p>
+        <p>등록일: {{post.regDate}}</p>
+        <button class="delete-button" onclick="favoritePost(event, {{post.postId}})"> 즐겨찾기 삭제</button>
+        </a>
+    {{/favoritesList}}
+</div>
+
+<script>
+    async function favoritePost(event, postId) {
+        event.preventDefault();
+
+        const favoriteRes = await util.fetchJsonData('/favoritePost', {
+            postId: postId,
+        });
+
+        if(!favoriteRes.result){
+            alert(favoriteRes.msg);
+            return;
+        }
+
+        location.reload();
+    }
+</script>
 </body>
 </html>

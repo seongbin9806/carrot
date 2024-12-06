@@ -2,10 +2,7 @@ package com.deal.carrot.service;
 
 import com.deal.carrot.dto.ResponseDTO;
 import com.deal.carrot.dto.carrot.CreatePostForm;
-import com.deal.carrot.entity.Category;
-import com.deal.carrot.entity.Department;
-import com.deal.carrot.entity.Post;
-import com.deal.carrot.entity.Student;
+import com.deal.carrot.entity.*;
 import com.deal.carrot.repository.PostRepository;
 import com.deal.carrot.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;

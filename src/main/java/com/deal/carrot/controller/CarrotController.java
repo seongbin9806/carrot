@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Controller
@@ -110,7 +111,17 @@ public class CarrotController {
 
 
     @GetMapping("/favoritesList")
-    public String favoritesList(Model model) {
+    public String favoritesList(Model model, HttpSession session) {
+        int studentNumber = (int) session.getAttribute("studentNumber");
+
+        List<Favorites> favoritesList = favoritesService.getFavoritesList(studentNumber);
+
+        for (Favorites favorite : favoritesList) {
+            String dealStatus = (Objects.equals(favorite.getPost().getIsDeal(), 'N')) ? "거래 가능" : "거래 완료";
+            favorite.getPost().setDealStatus(dealStatus); // dealStatus 필드를 Post 객체에 추가
+        }
+
+        model.addAttribute("favoritesList", favoritesList);
 
         return "carrot/favoritesList";
     }

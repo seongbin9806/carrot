@@ -101,54 +101,54 @@
     <script type="text/javascript" src="/assets/js/util.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <a href="/admin/department">학과정보</a>
-            <a href="/admin/category">카테고리</a>
-        </div>
-        <h1>학과 정보</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>학과명</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#departmentList}}
-                    <tr>
-                        <td>
-                            {{departmentName}}
-                        </td>
-                    </tr>
-                {{/departmentList}}
-            </tbody>
-        </table>
-        <div class="footer">
-            <form onsubmit="addDepartment(event)" method="post">
-                <input type="text" name="departmentName" value="" placeholder="학과명" required>
-                <button type="submit">학과 등록</button>
-            </form>
-        </div>
+<div class="container">
+    <div class="header">
+        <a href="/admin/department">학과정보</a>
+        <a href="/admin/category">카테고리</a>
     </div>
+    <h1>학과 정보</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>학과명</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#departmentList}}
+            <tr>
+                <td>
+                    {{departmentName}}
+                </td>
+            </tr>
+        {{/departmentList}}
+        </tbody>
+    </table>
+    <div class="footer">
+        <form onsubmit="addDepartment(event)" method="post">
+            <input type="text" name="departmentName" value="" placeholder="학과명" required>
+            <button type="submit">학과 등록</button>
+        </form>
+    </div>
+</div>
 
-    <script>
-        async function addDepartment(event) {
-            event.preventDefault();
+<script>
+    async function addDepartment(event) {
+        event.preventDefault();
 
-            let formData = new FormData(event.target);
+        let formData = new FormData(event.target);
 
-            const addDepartmentRes = await util.fetchJsonData('/admin/addDepartment', {
-                departmentName: formData.get('departmentName'),
-            });
+        const addDepartmentRes = await util.fetchJsonData('/admin/addDepartment', {
+            departmentName: formData.get('departmentName'),
+        });
 
-            if(!addDepartmentRes.result){
-                alert(addDepartmentRes.msg);
-                return;
-            }
-
-            alert('학과가 등록되었습니다.');
-            location.reload();
+        if(!addDepartmentRes.result){
+            alert(addDepartmentRes.msg);
+            return;
         }
-    </script>
+
+        alert('학과가 등록되었습니다.');
+        location.reload();
+    }
+</script>
 </body>
 </html>

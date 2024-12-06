@@ -26,4 +26,12 @@ public class Favorites {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "게시글번호")
     private Post postId;
+
+    public Post getPost() {
+        return this.postId;
+    }
+
+    public Student getStudent() {
+        return this.studentNumber;
+    }
 }

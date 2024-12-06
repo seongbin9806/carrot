@@ -6,8 +6,11 @@ import com.deal.carrot.entity.Post;
 import com.deal.carrot.entity.Student;
 import com.deal.carrot.repository.FavoritesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class FavoritesService {
@@ -22,6 +25,13 @@ public class FavoritesService {
     @Autowired
     public FavoritesService(FavoritesRepository favoritesRepository) {
         this.favoritesRepository = favoritesRepository;
+    }
+
+    @Transactional
+    public List<Favorites> getFavoritesList(int studentNumber) {
+        Student student = studentService.getStudentInfo(studentNumber);
+
+        return favoritesRepository.findAllByStudentNumber(student);
     }
 
     @Transactional
