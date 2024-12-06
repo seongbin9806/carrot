@@ -27,11 +27,19 @@ public class Student {
     private String name;
 
     @Column(name = "게시글등록수")
-    private int postCnt;
+    private int postCnt = 0;
 
     @Column(name = "가입일자")
     private LocalDateTime regDate;
 
     @Column(name = "탈퇴여부")
     private char isUse = 'N';
+
+    public Student(int studentNumber, String departmentName, String password, String name) {
+        this.studentNumber = studentNumber;
+        this.departmentName = departmentName;
+        this.password = password;
+        this.name = name;
+        this.regDate = LocalDateTime.now(); // regDate는 자동으로 현재 시간으로 설정
+    }
 }

@@ -14,9 +14,16 @@ import java.time.LocalDateTime;
 @Table(name = "즐겨찾기")
 public class Favorites {
     @Id
-    @Column(name = "학번")
-    private int studentNumber;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "favoritesSequenceGenerator")
+    @SequenceGenerator(name = "favoritesSequenceGenerator", sequenceName = "favoritesSequence", allocationSize = 1)
+    @Column(name = "즐겨찾기번호")
+    private int favoritesId;
 
-    @Column(name = "게시글번호")
-    private int postId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "학번")
+    private Student studentNumber;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "게시글번호")
+    private Post postId;
 }

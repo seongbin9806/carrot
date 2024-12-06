@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학과 정보</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 600px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header a {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .header a:first-child {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        .header a:last-child {
+            background-color: #e0e0e0;
+            color: black;
+        }
+
+        .header a:last-child:hover {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            text-align: center;
+            padding: 10px;
+        }
+
+        table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .footer button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .footer button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script type="text/javascript" src="/assets/js/util.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/admin/department">학과정보</a>
+            <a href="/admin/category">카테고리</a>
+        </div>
+        <h1>학과 정보</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>학과명</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#departmentList}}
+                    <tr>
+                        <td>
+                            {{departmentName}}
+                        </td>
+                    </tr>
+                {{/departmentList}}
+            </tbody>
+        </table>
+        <div class="footer">
+            <form onsubmit="addDepartment(event)" method="post">
+                <input type="text" name="departmentName" value="" placeholder="학과명" required>
+                <button type="submit">학과 등록</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function addDepartment(event) {
+            event.preventDefault();
+
+            let formData = new FormData(event.target);
+
+            const addDepartmentRes = await util.fetchJsonData('/admin/addDepartment', {
+                departmentName: formData.get('departmentName'),
+            });
+
+            if(!addDepartmentRes.result){
+                alert(addDepartmentRes.msg);
+                return;
+            }
+
+            alert('학과가 등록되었습니다.');
+            location.reload();
+        }
+    </script>
+</body>
+</html>

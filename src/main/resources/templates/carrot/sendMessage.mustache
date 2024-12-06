@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>쪽지 보내기</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .message-container {
+            width: 600px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .item-details {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .item-details span {
+            font-weight: bold;
+        }
+
+        .message-area {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .message.sent {
+            align-items: flex-end;
+        }
+
+        .message.received {
+            align-items: flex-start;
+        }
+
+        .message-content {
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            font-size: 14px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .input-area button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .input-area button:hover {
+            background-color: #0056b3;
+        }
+
+        .status-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .status-area label {
+            font-size: 14px;
+        }
+
+        .status-area .status-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-area input[type="checkbox"] {
+            margin-right: 5px;
+        }
+    </style>
+    <script type="text/javascript" src="/assets/js/util.js"></script>
+</head>
+<body>
+    <div class="message-container">
+        <div class="item-details">
+            <p><span>물품 이름:</span> TEST 물품</p>
+            <p><span>물품 가격:</span> 10,000원</p>
+        </div>
+
+        <div class="message-area">
+            <div class="message received">
+                <div class="message-content">받은 메세지1</div>
+                <div class="message-time">11:39</div>
+            </div>
+            <div class="message sent">
+                <div class="message-content">보내는 메세지1</div>
+                <div class="message-time">11:45</div>
+            </div>
+	    <div class="message received">
+                <div class="message-content">받은 메세지2</div>
+                <div class="message-time">11:47</div>
+            </div>
+            <div class="message received">
+                <div class="message-content">받은 메세지3</div>
+                <div class="message-time">11:48</div>
+            </div>
+            <div class="message sent">
+                <div class="message-content">보내는 메세지2</div>
+                <div class="message-time">11:52</div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" placeholder="메시지를 입력하세요">
+            <button>보내기</button>
+        </div>
+
+        <div class="status-area">
+            <div class="status-checkbox">
+                <label><input type="checkbox"> 거래예약</label>
+                <label><input type="checkbox"> 거래완료</label>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

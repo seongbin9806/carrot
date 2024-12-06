@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>물품 목록</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .search-bar-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            background-color: #e0e0e0;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .search-bar input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .search-bar button, .search-bar a {
+            padding: 10px 15px;
+            margin-right: 5px;
+            background-color: #888888;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 85px;
+            text-align: center;
+        }
+
+        .search-bar a:last-child {
+            margin-right: 0;
+        }
+
+        .search-bar a:hover {
+            background-color: #666666;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+        }
+
+        .filter-bar select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .post-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	        position: relative;
+	        text-decoration: unset;
+            color: black;
+        }
+	
+	.post-item .favorite-count {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #555;
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+	
+        .price {
+            color: #e44d26;
+            font-weight: bold;
+        }
+    </style>
+    <script type="text/javascript" src="/assets/js/util.js"></script>
+</head>
+<body>
+    <!-- 검색 바 -->
+    <div class="search-bar-container">
+        <div class="search-bar">
+            <form action="/posts/list" method="get" style="display: flex; width: 100%; align-items: center;">
+                <input type="text" name="keyword" placeholder="검색어를 입력하세요" />
+                <button type="submit">검색</button>
+            </form>
+            <a href="/favoritesList">즐겨찾기</a>
+            <a href="/messageList">쪽지함</a>
+            <a href="/createItem">글작성</a>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <select name="category">
+            <option value="카테고리 선택">학과 선택</option>
+            {{#categoryList}}
+                <option value="{{categoryName}}">{{categoryName}}</option>
+            {{/categoryList}}
+        </select>
+        <select name="department">
+            <option value="">학과 선택</option>
+            {{#departmentList}}
+                <option value="{{departmentName}}">{{departmentName}}</option>
+            {{/departmentList}}
+        </select>
+    </div>
+
+    <!-- 물품 목록 -->
+    <div class="grid-container">
+        {{#postList}}
+            <a href="/itemDetails?postId={{postId}}" class="post-item">
+                <h3>{{postName}}</h3>
+                <p class="price">{{amount}}원</p>
+                <p>학과: {{student.departmentName}}</p>
+                <p>카테고리: {{categoryName}}</p>
+                <p>상태: {{dealStatus}}</p>
+                <p>등록일: {{regDate}}</p>
+                <div class="favorite-count">즐겨찾기: {{favoritesCount}}</div>
+            </a>
+        {{/postList}}
+    </div>
+</body>

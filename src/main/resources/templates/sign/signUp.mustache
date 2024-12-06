@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+        }
+
+        .signup-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 8px 20px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+    <script type="text/javascript" src="/assets/js/util.js"></script>
+</head>
+<body>
+<div class="signup-container">
+    
+    <form onsubmit="signUp(event)" method="post">
+        <div class="form-group">
+            <label for="id">학번</label>
+            <input type="text" id="id" name="studentNumber" required>
+        </div>
+        <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="departmentNum">학과</label>
+            <select id="departmentNum" name="departmentName" required>
+                {{#departmentList}}
+                    <option value="{{departmentName}}">{{departmentName}}</option>
+                {{/departmentList}}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="passwordRepeat">비밀번호 확인</label>
+            <input type="password" id="passwordRepeat" name="rePassword" required>
+        </div>
+        <button type="submit">회원가입</button>
+    </form>
+</div>
+
+<script>
+    async function signUp(event) {
+        event.preventDefault();
+        let formData = new FormData(event.target);
+
+        if(formData.get('password') != formData.get('rePassword')) {
+            alert("비밀번호가 일치하지 않습니다");
+            return;
+        }
+
+        const signUpRes = await util.fetchJsonData('/sign/signUp', {
+            studentNumber: formData.get('studentNumber'),
+            name: formData.get('name'),
+            password: formData.get('password'),
+            departmentName: formData.get('departmentName')
+        });
+
+        if(!signUpRes.result){
+            alert(signUpRes.msg);
+            return;
+        }
+
+        alert("회원가입이 완료되었습니다");
+        location.href = "/";
+    }
+</script>
+
+</body>
+</html>

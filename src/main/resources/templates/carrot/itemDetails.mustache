@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>물품 상세보기</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .details-wrapper {
+            display: flex;
+            gap: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 800px; /* 컨테이너 전체 크기 */
+            height: auto;
+        }
+
+        .details-container {
+            flex: 2; /* 왼쪽 영역 */
+            padding: 10px;
+        }
+
+        .details-container h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .details-container p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .details-container .data-item {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .details-container .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .details-container button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .details-container .btn-message {
+                background-color: #007bff;
+                color: #fff;
+                text-decoration: unset;
+                padding: 10px;
+                text-align: center;
+        }
+
+        .details-container .btn-message:hover {
+            background-color: #0056b3;
+        }
+
+        .details-container .btn-favorite {
+            background-color: #888888;
+            color: #fff;
+            text-decoration: unset;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .details-container .btn-favorite:hover {
+            background-color: #666666;
+        }
+
+        .description-box {
+            flex: 1; /* 오른쪽 영역 */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .description-box h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .description-box p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+    <script type="text/javascript" src="/assets/js/util.js"></script>
+</head>
+<body>
+    <div class="details-wrapper">
+        <!-- 왼쪽 물품 정보 -->
+        <div class="details-container">
+            <h2>상세보기</h2>
+            <p><span class="data-item">판매자 이름:</span> {{postInfo.student.name}}</p>
+            <p><span class="data-item">물품명:</span> {{postInfo.postName}}</p>
+            <p><span class="data-item">카테고리명:</span> {{postInfo.categoryName}}</p>
+            <p><span class="data-item">학과명:</span> {{postInfo.student.departmentName}}</p>
+            <p><span class="data-item">거래 금액:</span> {{postInfo.amount}}원</p>
+            <p><span class="data-item">즐겨찾기 수:</span> {{postInfo.favoritesCount}}</p>
+            <p><span class="data-item">등록 날짜:</span> {{postInfo.regDate}}</p>
+            
+            <div class="button-group">
+                <a href="/sendMessage?postId={{postInfo.postId}}" class="btn-message">쪽지 보내기</a>
+                <a class="btn-favorite" onclick="favoritePost({{postInfo.postId}})" style="cursor:pointer">{{favoritesText}}</a>
+            </div>
+        </div>
+
+        <div class="description-box">
+            <h3>설명</h3>
+            <p>
+                {{postInfo.content}}
+            </p>
+        </div>
+    </div>
+
+    <script>
+        async function favoritePost(postId) {
+            const favoriteRes = await util.fetchJsonData('/favoritePost', {
+                postId: postId,
+            });
+
+            if(!favoriteRes.result){
+                alert(favoriteRes.msg);
+                return;
+            }
+
+            location.reload();
+        }
+    </script>
+</body>
+</html>

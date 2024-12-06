@@ -25,7 +25,7 @@ public class Note {
     @Column(name = "게시글번호")
     private int postId;
 
-    @Column(name = "제목")git add .
+    @Column(name = "제목")
     private String noteTitle;
 
     @Column(name = "내용")
