@@ -125,7 +125,8 @@
         <p><span class="data-item">등록 날짜:</span> {{postInfo.regDate}}</p>
 
         <div class="button-group">
-            <a href="/sendMessage?postId={{postInfo.postId}}" class="btn-message">쪽지 보내기</a>
+            <a href="/sendMessage?postId={{postInfo.postId}}&receiveStudentNumber={{postInfo.student.studentNumber}}"
+            class="btn-message">쪽지 보내기</a>
             <a class="btn-favorite" onclick="favoritePost({{postInfo.postId}})"
                style="cursor:pointer">{{favoritesText}}</a>
         </div>

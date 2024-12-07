@@ -41,7 +41,7 @@ public class SignController {
             return "redirect:/";
         }
 
-        model.addAttribute("departmentList", departmentService.getAllDepartmentList().getData());
+        model.addAttribute("departmentList", departmentService.getAllDepartmentList());
 
         return "sign/signUp";
     }

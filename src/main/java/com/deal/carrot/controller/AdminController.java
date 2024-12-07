@@ -25,7 +25,7 @@ public class AdminController {
     @GetMapping("/admin/category")
     public String adminCategory(Model model) {
 
-        model.addAttribute("categoryList", categoryService.getAllCategoryList().getData());
+        model.addAttribute("categoryList", categoryService.getAllCategoryList());
 
         return "admin/category";
     }
@@ -33,7 +33,7 @@ public class AdminController {
     @GetMapping("/admin/department")
     public String adminDepartment(Model model) {
 
-        model.addAttribute("departmentList", departmentService.getAllDepartmentList().getData());
+        model.addAttribute("departmentList", departmentService.getAllDepartmentList());
 
         return "admin/department";
     }

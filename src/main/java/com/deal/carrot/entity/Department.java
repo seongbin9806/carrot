@@ -2,6 +2,7 @@ package com.deal.carrot.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,4 +16,7 @@ public class Department {
     @Id
     @Column(name = "학과명")
     private String departmentName;
+
+    @Transient
+    private boolean isSelected = false;
 }

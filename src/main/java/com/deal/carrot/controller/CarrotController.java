@@ -2,9 +2,8 @@ package com.deal.carrot.controller;
 
 import com.deal.carrot.dto.ResponseDTO;
 import com.deal.carrot.dto.carrot.CreatePostForm;
-import com.deal.carrot.entity.Favorites;
-import com.deal.carrot.entity.Post;
-import com.deal.carrot.entity.Student;
+import com.deal.carrot.dto.carrot.SendMessageForm;
+import com.deal.carrot.entity.*;
 import com.deal.carrot.service.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -38,25 +37,42 @@ public class CarrotController {
     @Autowired
     private FavoritesService favoritesService;
 
+    @Autowired
+    private NoteService noteService;
+
     @GetMapping("/")
-    public String itemList(Model model, HttpSession session) {
+    public String itemList(@RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
+                           @RequestParam(value = "categoryName", required = false, defaultValue = "") String categoryName,
+                           @RequestParam(value = "departmentName", required = false, defaultValue = "") String departmentName,
+                           Model model, HttpSession session) {
         Object studentNumberObj = session.getAttribute("studentNumber");
 
         if (studentNumberObj == null) {
             return "redirect:/signIn";
         }
 
-        List<Post> postList = postService.getPostList();
+        List<Post> postList = postService.getPostList(keyword, categoryName, departmentName);
 
         for (Post post : postList) {
             String dealStatus = (post.getIsDeal() == 'N') ? "거래 가능" : "거래 완료";
             post.setDealStatus(dealStatus); // dealStatus 필드를 Post 객체에 추가
         }
 
-        model.addAttribute("categoryList", categoryService.getAllCategoryList().getData());
-        model.addAttribute("departmentList", departmentService.getAllDepartmentList().getData());
+        List<Category> categoryList = categoryService.getAllCategoryList();
+        List<Department> departmentList = departmentService.getAllDepartmentList();
+
+        model.addAttribute("categoryList", categoryList);
+        model.addAttribute("departmentList", departmentList);
         model.addAttribute("postList", postList);
 
+        // 선택 상태 설정
+        categoryList.forEach(category -> category.setSelected(category.getCategoryName().equals(categoryName)));
+        departmentList.forEach(department -> department.setSelected(department.getDepartmentName().equals(departmentName)));
+
+        /* getParam */
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("categoryName", categoryName);
+        model.addAttribute("departmentName", departmentName);
         return "carrot/itemList";
     }
 
@@ -68,7 +84,7 @@ public class CarrotController {
             return "redirect:/signIn";
         }
 
-        model.addAttribute("categoryList", categoryService.getAllCategoryList().getData());
+        model.addAttribute("categoryList", categoryService.getAllCategoryList());
 
         return "carrot/createItem";
     }
@@ -95,7 +111,7 @@ public class CarrotController {
         boolean isFavorites = favorites != null;
 
         model.addAttribute("postInfo", postInfo);
-        model.addAttribute("favoritesText", isFavorites? "즐겨찾기 삭제" : "즐겨찾기 등록");
+        model.addAttribute("favoritesText", isFavorites ? "즐겨찾기 삭제" : "즐겨찾기 등록");
 
         return "carrot/itemDetails";
     }
@@ -126,15 +142,33 @@ public class CarrotController {
         return "carrot/favoritesList";
     }
 
-    @GetMapping("/messageList")
-    public String messageList(Model model) {
+    @GetMapping("/sendMessage")
+    public String sendMessage(@RequestParam("postId") int postId,
+                              @RequestParam("receiveStudentNumber") int receiveStudentNumber,
+                              Model model, HttpSession session) {
+        int studentNumber = (int) session.getAttribute("studentNumber");
+        Post postInfo = postService.getPostDetail(postId);
 
+        model.addAttribute("postId", postId);
+        model.addAttribute("receiveStudentNumber", receiveStudentNumber);
+        model.addAttribute("postInfo", postInfo);
+        model.addAttribute("messageList", noteService.getMessageList(postId, studentNumber, receiveStudentNumber));
+
+        return "carrot/sendMessage";
+    }
+
+    @GetMapping("/messageList")
+    public String messageList() {
         return "carrot/messageList";
     }
 
-    @GetMapping("/sendMessage")
-    public String sendMessage(Model model) {
+    @PostMapping("/sendMessage")
+    public ResponseEntity<ResponseDTO> sendMessage(SendMessageForm form, HttpSession session) {
+        int studentNumber = (int) session.getAttribute("studentNumber");
 
-        return "carrot/sendMessage";
+        form.setStudentNumber(studentNumber);
+        ResponseDTO response = noteService.sendMessage(form);
+
+        return ResponseEntity.ok(response);
     }
 }

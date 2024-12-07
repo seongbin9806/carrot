@@ -2,3 +2,5 @@
 *.bat text eol=crlf
 *.jar binary
 *.css linguist-detectable=false
+*.mustache linguist-detectable=false
+*.javascript linguist-detectable=false

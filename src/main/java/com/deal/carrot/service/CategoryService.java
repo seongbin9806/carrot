@@ -21,7 +21,7 @@ public class CategoryService {
 
     @Transactional
     public ResponseDTO addCategory(String categoryName) {
-        try{
+        try {
             if (categoryRepository.findById(categoryName).isPresent())
                 return new ResponseDTO(false, "이미 등록된 카테고리입니다.");
 
@@ -39,7 +39,7 @@ public class CategoryService {
 
     @Transactional
     public ResponseDTO deleteCategory(String categoryName) {
-        try{
+        try {
             categoryRepository.deleteById(categoryName);
 
             return new ResponseDTO(true, "카테고리 삭제 성공");
@@ -50,9 +50,9 @@ public class CategoryService {
     }
 
     @Transactional
-    public ResponseDTO getAllCategoryList() {
+    public List<Category> getAllCategoryList() {
         List<Category> categoryList = categoryRepository.findAll(Sort.by(Sort.Order.asc("categoryName")));
 
-        return new ResponseDTO(true, "카테고리 리스트 가져오기 성공", categoryList);
+        return categoryList;
     }
 }

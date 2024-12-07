@@ -45,10 +45,11 @@ public class Post {
     @Column(name = "거래여부")
     private char isDeal = 'N';
 
-    private String dealStatus = "";
-
     @Column(name = "등록날짜")
     private LocalDateTime regDate;
+
+    @Transient
+    private String dealStatus = "";
 
     public Post(Student student, String categoryName, int amount, String postName, String content) {
         this.student = student;

@@ -37,7 +37,7 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 10px;
-            height: 200px;
+            height: 320px;
             overflow-y: auto;
             margin-bottom: 20px;
             background-color: #f9f9f9;
@@ -124,44 +124,53 @@
 <body>
 <div class="message-container">
     <div class="item-details">
-        <p><span>물품 이름:</span> TEST 물품</p>
-        <p><span>물품 가격:</span> 10,000원</p>
+        <p><span>물품 이름:</span> {{postInfo.postName}}</p>
+        <p><span>물품 가격:</span> {{postInfo.amount}}원</p>
     </div>
 
     <div class="message-area">
-        <div class="message received">
-            <div class="message-content">받은 메세지1</div>
-            <div class="message-time">11:39</div>
-        </div>
-        <div class="message sent">
-            <div class="message-content">보내는 메세지1</div>
-            <div class="message-time">11:45</div>
-        </div>
-        <div class="message received">
-            <div class="message-content">받은 메세지2</div>
-            <div class="message-time">11:47</div>
-        </div>
-        <div class="message received">
-            <div class="message-content">받은 메세지3</div>
-            <div class="message-time">11:48</div>
-        </div>
-        <div class="message sent">
-            <div class="message-content">보내는 메세지2</div>
-            <div class="message-time">11:52</div>
-        </div>
+        {{#messageList}}
+            <div class="message {{clsMyMessage}}">
+                <div class="message-content">{{noteContent}}</div>
+                <div class="message-time">{{regDate}}</div>
+            </div>
+        {{/messageList}}
     </div>
 
     <div class="input-area">
-        <input type="text" placeholder="메시지를 입력하세요">
-        <button>보내기</button>
+        <form onsubmit="sendMessage(event)" method="post">
+            <input type="hidden" name="postId" value="{{postId}}"/>
+            <input type="hidden" name="receiveStudentNumber" value="{{receiveStudentNumber}}"/>
+            <input type="text" name="noteContent" placeholder="메시지를 입력하세요" required>
+            <button type="submit">보내기</button>
+        </form>
     </div>
 
     <div class="status-area">
         <div class="status-checkbox">
-            <label><input type="checkbox"> 거래예약</label>
             <label><input type="checkbox"> 거래완료</label>
         </div>
     </div>
 </div>
+<script>
+    async function sendMessage(event) {
+        event.preventDefault();
+        let formData = new FormData(event.target);
+
+        const sendMessageRes = await util.fetchJsonData('/sendMessage', {
+            postId: formData.get('postId'),
+            receiveStudentNumber: formData.get('receiveStudentNumber'),
+            noteContent: formData.get('noteContent')
+        });
+
+        if(!sendMessageRes.result){
+            alert(sendMessageRes.msg);
+            return;
+        }
+
+        alert("메세지가 전송되었습니다.");
+        location.reload();
+    }
+</script>
 </body>
 </html>

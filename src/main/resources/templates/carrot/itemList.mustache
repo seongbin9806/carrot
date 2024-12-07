@@ -109,33 +109,37 @@
     <script type="text/javascript" src="/assets/js/util.js"></script>
 </head>
 <body>
-<!-- 검색 바 -->
-<div class="search-bar-container">
-    <div class="search-bar">
-        <form action="/posts/list" method="get" style="display: flex; width: 100%; align-items: center;">
-            <input type="text" name="keyword" placeholder="검색어를 입력하세요"/>
-            <button type="submit">검색</button>
-        </form>
-        <a href="/favoritesList">즐겨찾기</a>
-        <a href="/messageList">쪽지함</a>
-        <a href="/createItem">글작성</a>
+<form action="./" method="get">
+    <!-- 검색 바 -->
+    <div class="search-bar-container">
+        <div class="search-bar">
+            <div style="display: flex; width: 100%; align-items: center;">
+                <input type="text" name="keyword" placeholder="검색어를 입력하세요" value="{{keyword}}"/>
+                <button type="submit">검색</button>
+            </div>
+            <a href="/favoritesList">즐겨찾기</a>
+            <a href="/messageList">쪽지함</a>
+            <a href="/createItem">글작성</a>
+        </div>
     </div>
-</div>
 
-<div class="filter-bar">
-    <select name="category">
-        <option value="카테고리 선택">학과 선택</option>
-        {{#categoryList}}
-            <option value="{{categoryName}}">{{categoryName}}</option>
-        {{/categoryList}}
-    </select>
-    <select name="department">
-        <option value="">학과 선택</option>
-        {{#departmentList}}
-            <option value="{{departmentName}}">{{departmentName}}</option>
-        {{/departmentList}}
-    </select>
-</div>
+    <div class="filter-bar">
+        <select name="categoryName">
+            <option value="">카테고리 선택</option>
+            {{#categoryList}}
+                <option value="{{categoryName}}"
+                        {{#isSelected}}selected{{/isSelected}}>{{categoryName}}</option>
+            {{/categoryList}}
+        </select>
+        <select name="departmentName">
+            <option value="">학과 선택</option>
+            {{#departmentList}}
+                <option value="{{departmentName}}"
+                        {{#isSelected}}selected{{/isSelected}}>{{departmentName}}</option>
+            {{/departmentList}}
+        </select>
+    </div>
+</form>
 
 <!-- 물품 목록 -->
 <div class="grid-container">
@@ -143,6 +147,7 @@
         <a href="/itemDetails?postId={{postId}}" class="post-item">
         <h3>{{postName}}</h3>
         <p class="price">{{amount}}원</p>
+        <p>판매자 이름: {{student.name}}</p>
         <p>학과: {{student.departmentName}}</p>
         <p>카테고리: {{categoryName}}</p>
         <p>상태: {{dealStatus}}</p>

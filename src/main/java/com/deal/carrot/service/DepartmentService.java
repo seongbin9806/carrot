@@ -21,7 +21,7 @@ public class DepartmentService {
 
     @Transactional
     public ResponseDTO addDepartment(String departmentName) {
-        try{
+        try {
             if (departmentRepository.findById(departmentName).isPresent())
                 return new ResponseDTO(false, "이미 등록된 학과입니다.");
 
@@ -39,7 +39,7 @@ public class DepartmentService {
 
     @Transactional
     public ResponseDTO deleteDepartment(String departmentName) {
-        try{
+        try {
             departmentRepository.deleteById(departmentName);
 
             return new ResponseDTO(true, "학과 삭제 성공");
@@ -50,9 +50,9 @@ public class DepartmentService {
     }
 
     @Transactional
-    public ResponseDTO getAllDepartmentList() {
+    public List<Department> getAllDepartmentList() {
         List<Department> departmentList = departmentRepository.findAll(Sort.by(Sort.Order.asc("departmentName")));
 
-        return new ResponseDTO(true, "학과 리스트 가져오기 성공", departmentList);
+        return departmentList;
     }
 }
