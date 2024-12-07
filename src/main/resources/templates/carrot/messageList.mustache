@@ -36,6 +36,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
+            text-decoration: unset;
         }
 
         .message-item h3 {
@@ -63,11 +64,15 @@
 <div class="container">
     <h1>쪽지함</h1>
     <div class="grid-container">
-        <div class="message-item">
-            <h3>보낸 사람: 유저1</h3>
-            <p>시간: 2024-11-30 14:30</p>
-            <p class="message-preview">test-문의드립니다.</p>
-        </div>
+        {{#messageList}}
+            <a class="message-item"
+               href="/sendMessage?postId={{myMessage.postId}}&receiveStudentNumber={{traderStudentNumber}}">
+            <h3>거래자: {{traderName}}</h3>
+            <h3>물품명: {{post.postName}}</h3>
+            <p>시간: {{myMessage.regDate}}</p>
+            <p class="message-preview">{{myMessage.noteContent}}</p>
+            </a>
+        {{/messageList}}
     </div>
 </div>
 </body>

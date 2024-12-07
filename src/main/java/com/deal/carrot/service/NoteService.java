@@ -1,19 +1,16 @@
 package com.deal.carrot.service;
 
+import com.deal.carrot.dto.carrot.MyMessageDto;
 import com.deal.carrot.dto.ResponseDTO;
-import com.deal.carrot.dto.carrot.CreatePostForm;
 import com.deal.carrot.dto.carrot.SendMessageForm;
 import com.deal.carrot.entity.Note;
 import com.deal.carrot.entity.Post;
 import com.deal.carrot.entity.Student;
-import com.deal.carrot.repository.FavoritesRepository;
 import com.deal.carrot.repository.NoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +26,11 @@ public class NoteService {
     @Autowired
     public NoteService(NoteRepository noteRepository) {
         this.noteRepository = noteRepository;
+    }
+
+    @Transactional
+    public List<MyMessageDto> getMyMessageList(int studentNumber) {
+        return noteRepository.findNotesByStudentId(studentNumber);
     }
 
     @Transactional
@@ -63,5 +65,11 @@ public class NoteService {
         noteRepository.save(note);
 
         return new ResponseDTO(true, "쪽지 보내기 성공");
+    }
+
+    @Transactional
+    public Note getLastMessage(int noteId) {
+        return noteRepository.findById(noteId)
+                .orElseThrow(() -> new RuntimeException("쪽지 내용을 찾을 수 없습니다."));
     }
 }
