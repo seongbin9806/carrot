@@ -116,13 +116,17 @@
     <!-- 왼쪽 물품 정보 -->
     <div class="details-container">
         <h2>상세보기</h2>
-        <p><span class="data-item">판매자 이름:</span> {{postInfo.student.name}}</p>
+        <img src="/assets/image/{{postInfo.student.grade}}.webp" width="40" height="40" style="margin-bottom: 5px;"/>
+        <p>
+            <span class="data-item">판매자 이름:</span>
+            {{postInfo.student.name}}
+        </p>
         <p><span class="data-item">물품명:</span> {{postInfo.postName}}</p>
         <p><span class="data-item">카테고리명:</span> {{postInfo.categoryName}}</p>
         <p><span class="data-item">학과명:</span> {{postInfo.student.departmentName}}</p>
         <p><span class="data-item">거래 금액:</span> {{postInfo.amount}}원</p>
         <p><span class="data-item">즐겨찾기 수:</span> {{postInfo.favoritesCount}}</p>
-        <p><span class="data-item">등록 날짜:</span> {{postInfo.regDate}}</p>
+        <p><span class="data-item">등록 날짜:</span> {{postInfo.formatRegDate}}</p>
 
         <div class="button-group">
             <a href="/sendMessage?postId={{postInfo.postId}}&receiveStudentNumber={{postInfo.student.studentNumber}}"

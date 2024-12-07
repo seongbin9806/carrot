@@ -1,10 +1,7 @@
 package com.deal.carrot.controller;
 
 import com.deal.carrot.dto.ResponseDTO;
-import com.deal.carrot.dto.carrot.CreatePostForm;
-import com.deal.carrot.dto.carrot.MyMessageDetail;
-import com.deal.carrot.dto.carrot.MyMessageDto;
-import com.deal.carrot.dto.carrot.SendMessageForm;
+import com.deal.carrot.dto.carrot.*;
 import com.deal.carrot.entity.*;
 import com.deal.carrot.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -43,6 +40,9 @@ public class CarrotController {
     @Autowired
     private NoteService noteService;
 
+    @Autowired
+    private OracleProcedureService oracleProcedureService;
+
     @GetMapping("/")
     public String itemList(@RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
                            @RequestParam(value = "categoryName", required = false, defaultValue = "") String categoryName,
@@ -57,6 +57,9 @@ public class CarrotController {
         List<Post> postList = postService.getPostList(keyword, categoryName, departmentName);
 
         for (Post post : postList) {
+            post.setFormatRegDate(oracleProcedureService.callPostDateProcedure(post.getPostId()));
+            post.getStudent().setGrade(oracleProcedureService.callStudentGradeProcedure(post.getStudent().getStudentNumber()));
+
             String dealStatus = (post.getIsDeal() == 'N') ? "거래 가능" : "거래 완료";
             post.setDealStatus(dealStatus); // dealStatus 필드를 Post 객체에 추가
         }
@@ -113,6 +116,9 @@ public class CarrotController {
         Favorites favorites = favoritesService.getFavoriteInfo(post, student);
         boolean isFavorites = favorites != null;
 
+        postInfo.setFormatRegDate(oracleProcedureService.callPostDateProcedure(postInfo.getPostId()));
+        postInfo.getStudent().setGrade(oracleProcedureService.callStudentGradeProcedure(postInfo.getStudent().getStudentNumber()));
+
         model.addAttribute("postInfo", postInfo);
         model.addAttribute("favoritesText", isFavorites ? "즐겨찾기 삭제" : "즐겨찾기 등록");
 
@@ -136,6 +142,10 @@ public class CarrotController {
         List<Favorites> favoritesList = favoritesService.getFavoritesList(studentNumber);
 
         for (Favorites favorite : favoritesList) {
+
+            favorite.getPost().setFormatRegDate(oracleProcedureService.callPostDateProcedure(favorite.getPost().getPostId()));
+            favorite.getPost().getStudent().setGrade(oracleProcedureService.callStudentGradeProcedure(favorite.getPost().getStudent().getStudentNumber()));
+
             String dealStatus = (Objects.equals(favorite.getPost().getIsDeal(), 'N')) ? "거래 가능" : "거래 완료";
             favorite.getPost().setDealStatus(dealStatus); // dealStatus 필드를 Post 객체에 추가
         }
@@ -152,12 +162,35 @@ public class CarrotController {
         int studentNumber = (int) session.getAttribute("studentNumber");
         Post postInfo = postService.getPostDetail(postId);
 
+        /* 나의 게시글이고 완료가 안 되었는지 체크 */
+        boolean isShowFinish = (postInfo.getStudent().getStudentNumber() == studentNumber && postInfo.getIsDeal() == 'N');
+
         model.addAttribute("postId", postId);
         model.addAttribute("receiveStudentNumber", receiveStudentNumber);
         model.addAttribute("postInfo", postInfo);
         model.addAttribute("messageList", noteService.getMessageList(postId, studentNumber, receiveStudentNumber));
+        model.addAttribute("isShowFinish", isShowFinish);
 
         return "carrot/sendMessage";
+    }
+
+    @PostMapping("/sendMessage")
+    public ResponseEntity<ResponseDTO> sendMessage(SendMessageForm form, HttpSession session) {
+        int studentNumber = (int) session.getAttribute("studentNumber");
+
+        form.setStudentNumber(studentNumber);
+        ResponseDTO response = noteService.sendMessage(form);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/finishDeal")
+    public ResponseEntity<ResponseDTO> finishDeal(FinishDealForm form, HttpSession session) {
+        int studentNumber = (int) session.getAttribute("studentNumber");
+
+        ResponseDTO response = postService.finishDeal(form);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/messageList")
@@ -173,7 +206,7 @@ public class CarrotController {
             Note noteInfo = noteService.getLastMessage(myMessage.getNoteId());
             myMessage.setNoteContent(noteInfo.getNoteContent());
             myMessageDetail.setMyMessage(myMessage);
-            
+
             myMessageDetail.setPost(postService.getPostDetail(myMessage.getPostId()));
             myMessageDetail.setStudent(studentService.getStudentInfo(myMessage.getStudentNumber()));
             myMessageDetail.setReceiveStudent(studentService.getStudentInfo(myMessage.getReceiveStudentNumber()));
@@ -199,15 +232,5 @@ public class CarrotController {
         model.addAttribute("messageList", myMessageDetailList);
 
         return "carrot/messageList";
-    }
-
-    @PostMapping("/sendMessage")
-    public ResponseEntity<ResponseDTO> sendMessage(SendMessageForm form, HttpSession session) {
-        int studentNumber = (int) session.getAttribute("studentNumber");
-
-        form.setStudentNumber(studentNumber);
-        ResponseDTO response = noteService.sendMessage(form);
-
-        return ResponseEntity.ok(response);
     }
 }

@@ -1,50 +1,181 @@
 # carrot
+
 DataBaseProgramming - JavaSpring(carrot)🥕
 
 # Oracle Database Setup for Carrot Project
+
 ## Creating User and Granting Permissions
 
 먼저 Oracle 데이터베이스에서 사용자 계정을 생성하고 권한을 부여합니다.
 
 ```sql
--- SYSTEM에서 작업
 ALTER session set "_ORACLE_SCRIPT"=true;
 
+-- 사용자 생성
 CREATE USER CARROT IDENTIFIED BY 1234  -- 사용자 ID: carrot, 비밀번호: 1234
     DEFAULT TABLESPACE USERS
     TEMPORARY TABLESPACE TEMP;
 GRANT connect, resource, dba TO CARROT; -- 권한 부여
 
--- Running Spring Application
--- 계정 생성 작업 후 Spring 애플리케이션을 실행하고, localhost:8080에 접속하여 테이블 생성 로그가 뜰 때까지 새로고침을 반복합니다.
+----------------------------------------------------------------
+-------------------- 데이터 및 테이블 삭제  ---------------------- 
+----------------------------------------------------------------
+DROP TABLE 물품게시글 CASCADE CONSTRAINTS;
+DROP TABLE 즐겨찾기 CASCADE CONSTRAINTS;
+DROP TABLE 쪽지 CASCADE CONSTRAINTS;
+DROP TABLE 카테고리 CASCADE CONSTRAINTS;
+DROP TABLE 학과 CASCADE CONSTRAINTS;
+DROP TABLE 학생 CASCADE CONSTRAINTS;
 
--- Inserting Data Example - Using Sequences
--- 게시글 삽입 예제
--- 게시글을 삽입하는 예제입니다. 게시글번호는 시퀀스를 통해 자동으로 생성됩니다.
+----------------------------------------------------------------
+------------------------ 저장 프로시저  -------------------------- 
+----------------------------------------------------------------
 
-SELECT * FROM 게시글;
+-- 물품 게시글 작성 날짜 표시 저장 프로시저
+-- 물품 게시글 작성 날짜 표시 저장 프로시저
+create or replace NONEDITIONABLE PROCEDURE PostDateProcedure(
+    post_number IN NUMBER,      -- 게시글번호 입력
+    post_result OUT VARCHAR2    -- 계산 결과 출력
+)
+AS
+    post_date DATE;      -- 게시글 작성 날짜를 저장할 변수
+    days_diff NUMBER;    -- 현재 날짜와 게시글 작성 날짜의 차이를 저장할 변수
+BEGIN
+    -- 게시글 작성 날짜 조회
+    SELECT 등록날짜 INTO post_date
+    FROM 게시글
+    WHERE 게시글번호 = post_number;
 
-INSERT INTO 게시글 (게시글번호, 학번, 학과명, 카테고리명, 거래자, 거래금액, 물품명, 물품설명, 거래여부, 등록날짜)
-VALUES (POST_SEQUENCE.NEXTVAL, 12345, 101, 202, 67890, 50000, 'Laptop', 'Brand new laptop', 'N', TO_DATE('2024-12-04 10:00:00', 'YYYY-MM-DD HH24:MI:SS'));
+    -- 날짜 차이 계산
+    -- TRUNC는 시간 정보를 제외한 날짜 정보만 볼 수 있음
+    days_diff := TRUNC(SYSDATE) - TRUNC(post_date);
 
-SELECT * FROM 게시글;
+    -- 조건에 따라 결과 반환
+    IF days_diff = 0 THEN
+        post_result := '오늘';
+    ELSIF days_diff = 1 THEN
+        post_result := '어제';
+    ELSIF days_diff > 2 AND days_diff <= 7 THEN
+        post_result := days_diff || '일 전';
+    ELSE
+        -- 7일을 초과하면 게시 날짜로 출력
+        -- 반환 타입이 VARCHER2이므로 타입 변환 필요
+        -- post_date은 현재 DATE 타입이므로 TO_CHAR을 사용해 문자열 타입으로 변환
+        -- 시간은 필요 없으므로 'YYYY-MM-DD'
+        post_result := TO_CHAR(post_date, 'YYYY-MM-DD');
+    END IF;
+END;
 
--- 쪽지 삽입 예제
--- 쪽지를 삽입하는 예제입니다. 쪽지번호는 시퀀스를 통해 자동으로 생성됩니다.
+-- 거래완료 횟수에 따른 학생 등급 출력 저장 프로시저
+CREATE OR REPLACE PROCEDURE StudentGrade_Procedure(
+    student_number IN VARCHAR2, -- 학번 입력
+    student_grade OUT VARCHAR2  -- 학생 등급 출력
+)
+AS
+    completed_count NUMBER;     -- 거래완료 횟수를 저장 할 변수
+BEGIN
+    -- 거래 완료 횟수 조회
+    SELECT COUNT(*) INTO completed_count
+    FROM 게시글
+    WHERE 학번 = student_number AND 거래여부 = 'Y';
+    
+    -- 등급 결정
+    IF completed_count <= 1 THEN
+        student_grade := 'bronze';
+    ELSIF completed_count <= 3 THEN
+        student_grade := 'sliver';
+    ELSIF completed_count <= 5 THEN
+        student_grade := 'gold';
+    ELSIF completed_count <= 7 THEN
+        student_grade := 'platinum';
+    ELSE
+        student_grade := 'diamond';
+    END IF;
+END;
 
-SELECT * FROM 쪽지;
+----------------------------------------------------------------
+--------------------------- 트리거  ----------------------------- 
+----------------------------------------------------------------
 
-INSERT INTO 쪽지 (쪽지번호, 게시글번호, 학번, 제목, 내용, 쪽지일자)
-VALUES (NOTE_SEQUENCE.NEXTVAL, 1, 20223978, '제목', '내용', TO_DATE('2024-12-04 10:00:00', 'YYYY-MM-DD HH24:MI:SS'));
+-- add_favorite_on_message: 학생이 게시글에 쪽지를 보낼 때 해당 게시글을 즐겨찾기에 추가
+CREATE OR REPLACE TRIGGER add_favorite_on_message
+    AFTER INSERT 
+    ON 쪽지
+    FOR EACH ROW
+BEGIN
+    -- 쪽지가 전송되었을 때, 해당 게시글을 즐겨찾기에 추가
+    INSERT INTO 즐겨찾기(학번, 게시글번호) VALUES (:NEW.학번, :NEW.게시글번호);
 
-SELECT * FROM 쪽지;
+    -- DUP_VAL_ON_INDEX를 사용하여 이미 즐겨찾기에 추가된 경우,
+    -- 예외 처리하여 아무 작업도 하지 않고 트리거 실행 종료
+    EXCEPTION 
+        WHEN DUP_VAL_ON_INDEX THEN NULL; 
+END;
 
--- Dropping Tables
--- 필요시 사용하기 위한 테이블 삭제 쿼리입니다.
+-- increment_favorite_count_on_add: 즐겨찾기가 추가 됐을 시, 게시글의 즐겨찾기 횟수를 1회 증가
+CREATE OR REPLACE TRIGGER increment_favorite_count_on_add
+    AFTER INSERT ON 즐겨찾기
+    FOR EACH ROW
+BEGIN
+    -- 즐겨찾기가 추가되었을 때, 해당 게시글의 즐겨찾기 횟수 증가
+    UPDATE 물품게시글
+    SET 즐겨찾기횟수 = 즐겨찾기횟수 + 1
+    WHERE 게시글번호 = :NEW.게시글번호;
+END;
 
-DROP TABLE "게시글" CASCADE CONSTRAINTS;
-DROP TABLE "즐겨찾기" CASCADE CONSTRAINTS;
-DROP TABLE "쪽지" CASCADE CONSTRAINTS;
-DROP TABLE "카테고리" CASCADE CONSTRAINTS;
-DROP TABLE "학과" CASCADE CONSTRAINTS;
-DROP TABLE "학생" CASCADE CONSTRAINTS;
+-- delete_favorites_on_student_exit: 학생이 탈퇴 시 해당 학생의 즐겨찾기 목록 삭제
+CREATE OR REPLACE TRIGGER delete_favorites_on_student_exit
+AFTER UPDATE OF 탈퇴여부 ON 학생
+FOR EACH ROW
+BEGIN
+    -- 탈퇴여부가 'Y'로 변경된 경우 실행
+    IF :NEW.탈퇴여부 = 'Y' THEN
+        DELETE FROM 즐겨찾기 WHERE 학번 = :NEW.학번;
+    END IF;
+END;
+
+-- update_post_on_favorite_delete: 즐겨찾기 삭제 시 물품게시글에 즐겨찾기횟수 감소 및 게시글 비활성화
+CREATE OR REPLACE TRIGGER update_post_on_favorite_delete
+AFTER DELETE ON 즐겨찾기
+FOR EACH ROW
+DECLARE
+    favorite_count NUMBER;  -- 즐겨찾기횟수를 저장할 변수
+BEGIN
+    -- 삭제되는 즐겨찾기에 게시글번호를 favorite_count 변수에 저장
+    SELECT 즐겨찾기횟수 INTO favorite_count
+    FROM 물품게시글
+    WHERE 게시글번호 = :OLD.게시글번호;
+    
+    -- 즐겨찾기횟수가 음수가 되면 안 되기 때문에 0 보다 클 때만 수행
+    IF favorite_count > 0 THEN
+        UPDATE 물품게시글
+        SET 즐겨찾기횟수 = 즐겨찾기횟수 - 1
+        WHERE 게시글번호 = :OLD.게시글번호;
+    END IF;
+    
+    -- 게시글 비활성화
+    UPDATE 물품게시글 
+    SET 게시글활성화여부 = 'N'
+    WHERE 학번 = :OLD.학번;
+END;
+
+
+-- post_count: 학생이 게시글 등록 시 게시글등록수 +1, 삭제시 -1
+CREATE OR REPLACE TRIGGER post_count
+    AFTER INSERT OR DELETE ON 물품게시글
+    FOR EACH ROW
+BEGIN
+    -- INSERT 이벤트: 게시글등록수 +1
+    IF INSERTING THEN
+        UPDATE 학생
+        SET 게시글등록수 = 게시글등록수 + 1
+        WHERE 학번 = :NEW.학번;
+    END IF;
+
+    -- DELETE 이벤트: 게시글등록수 -1
+    IF DELETING THEN
+        UPDATE 학생
+        SET 게시글등록수 = 게시글등록수 - 1
+        WHERE 학번 = :OLD.학번;
+    END IF;
+END;

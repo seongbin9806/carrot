@@ -146,11 +146,17 @@
         </form>
     </div>
 
-    <div class="status-area">
-        <div class="status-checkbox">
-            <label><input type="checkbox"> 거래완료</label>
-        </div>
-    </div>
+    {{#isShowFinish}}
+        <form onsubmit="finishDeal(event)" method="post">
+            <input type="hidden" name="postId" value="{{postId}}"/>
+            <input type="hidden" name="receiveStudentNumber" value="{{receiveStudentNumber}}"/>
+            <div class="status-area">
+                <div class="status-checkbox">
+                    <button type="submit">해당거래자와 거래완료하기</button>
+                </div>
+            </div>
+        </form>
+    {{/isShowFinish}}
 </div>
 <script>
     async function sendMessage(event) {
@@ -169,6 +175,26 @@
         }
 
         alert("메세지가 전송되었습니다.");
+        location.reload();
+    }
+
+    async function finishDeal(event) {
+        event.preventDefault();
+        if(!confirm("해당 유저와 거래를 완료하시겠습니까?")) return;
+
+        let formData = new FormData(event.target);
+
+        const finishDealRes = await util.fetchJsonData('/finishDeal', {
+            postId: formData.get('postId'),
+            receiveStudentNumber: formData.get('receiveStudentNumber')
+        });
+
+        if(!finishDealRes.result){
+            alert(finishDealRes.msg);
+            return;
+        }
+
+        alert("거래완료 처리되었습니다.");
         location.reload();
     }
 </script>

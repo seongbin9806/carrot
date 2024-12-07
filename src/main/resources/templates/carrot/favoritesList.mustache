@@ -30,6 +30,7 @@
         }
 
         .post-item {
+            min-width: 200px;
             border: 1px solid #ddd;
             padding: 45px;
             background-color: white;
@@ -84,12 +85,16 @@
 
     {{#favoritesList}}
         <a href="/itemDetails?postId={{post.postId}}" class="post-item">
+        <img src="/assets/image/{{student.grade}}.webp" width="40" height="40" style="margin-bottom: 5px;"/>
         <h3>{{post.postName}}</h3>
         <p class="price">{{post.amount}}원</p>
+        <p>
+            판매자 이름: {{post.student.name}}
+        </p>
         <p>학과: {{post.student.departmentName}}</p>
         <p>카테고리: {{post.categoryName}}</p>
         <p>상태: {{post.dealStatus}}</p>
-        <p>등록일: {{post.regDate}}</p>
+        <p>등록일: {{post.formatRegDate}}</p>
         <button class="delete-button" onclick="favoritePost(event, {{post.postId}})"> 즐겨찾기 삭제</button>
         </a>
     {{/favoritesList}}

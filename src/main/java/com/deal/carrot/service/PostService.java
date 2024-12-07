@@ -2,6 +2,7 @@ package com.deal.carrot.service;
 
 import com.deal.carrot.dto.ResponseDTO;
 import com.deal.carrot.dto.carrot.CreatePostForm;
+import com.deal.carrot.dto.carrot.FinishDealForm;
 import com.deal.carrot.dto.domain.PostSpecification;
 import com.deal.carrot.entity.*;
 import com.deal.carrot.repository.PostRepository;
@@ -43,6 +44,7 @@ public class PostService {
         Specification<Post> spec = Specification.where(PostSpecification.hasKeyword(keyword))
                 .and(PostSpecification.hasCategory(categoryName))
                 .and(PostSpecification.hasDepartment(departmentName));
+
         return postRepository.findAll(spec, Sort.by(Sort.Order.desc("regDate")));
     }
 
@@ -50,5 +52,20 @@ public class PostService {
     public Post getPostDetail(int postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+    }
+
+    @Transactional
+    public ResponseDTO finishDeal(FinishDealForm form) {
+
+        Post post = this.getPostDetail(form.getPostId());
+        Student receiveStudent = studentService.getStudentInfo(form.getReceiveStudentNumber());
+
+        post.setIsDeal('Y');
+        post.setTraderStudent(receiveStudent);
+
+        // 변경사항 저장
+        postRepository.save(post);
+
+        return new ResponseDTO(true, "거래자 업데이트 성공");
     }
 }

@@ -49,6 +49,9 @@ public class Post {
     private LocalDateTime regDate;
 
     @Transient
+    private String formatRegDate = "";
+
+    @Transient
     private String dealStatus = "";
 
     public Post(Student student, String categoryName, int amount, String postName, String content) {

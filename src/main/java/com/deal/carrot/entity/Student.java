@@ -35,6 +35,9 @@ public class Student {
     @Column(name = "탈퇴여부")
     private char isUse = 'N';
 
+    @Transient
+    private String grade = "";
+
     public Student(int studentNumber, String departmentName, String password, String name) {
         this.studentNumber = studentNumber;
         this.departmentName = departmentName;

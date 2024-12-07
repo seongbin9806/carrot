@@ -4,6 +4,7 @@ import com.deal.carrot.dto.ResponseDTO;
 import com.deal.carrot.dto.sign.SignInForm;
 import com.deal.carrot.dto.sign.SignUpForm;
 import com.deal.carrot.service.DepartmentService;
+import com.deal.carrot.service.OracleProcedureService;
 import com.deal.carrot.service.StudentService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class SignController {
 
     @Autowired
     private DepartmentService departmentService;
+
+    @Autowired
+    private OracleProcedureService oracleProcedureService;
 
     @GetMapping("/signIn")
     public String signIn(Model model, HttpSession session) {
