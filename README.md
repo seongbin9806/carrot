@@ -98,18 +98,27 @@ END;
 ----------------------------------------------------------------
 
 -- add_favorite_on_message: 학생이 게시글에 쪽지를 보낼 때 해당 게시글을 즐겨찾기에 추가
-CREATE OR REPLACE TRIGGER add_favorite_on_message
+CREATE OR REPLACE NONEDITIONABLE TRIGGER add_favorite_on_message
     AFTER INSERT 
     ON 쪽지
     FOR EACH ROW
 BEGIN
-    -- 쪽지가 전송되었을 때, 해당 게시글을 즐겨찾기에 추가
-    INSERT INTO 즐겨찾기(학번, 게시글번호) VALUES (:NEW.학번, :NEW.게시글번호);
+    -- 해당 게시글이 이미 즐겨찾기에 추가되어 있는지 확인
+    DECLARE
+        favorite_count INTEGER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO favorite_count
+        FROM 즐겨찾기
+        WHERE 학번 = :NEW.학번
+          AND 게시글번호 = :NEW.게시글번호;
 
-    -- DUP_VAL_ON_INDEX를 사용하여 이미 즐겨찾기에 추가된 경우,
-    -- 예외 처리하여 아무 작업도 하지 않고 트리거 실행 종료
-    EXCEPTION 
-        WHEN DUP_VAL_ON_INDEX THEN NULL; 
+        -- 즐겨찾기에 추가되지 않은 경우에만 추가
+        IF favorite_count = 0 THEN
+            INSERT INTO 즐겨찾기(즐겨찾기번호, 학번, 게시글번호)
+            VALUES (FAVORITES_SEQUENCE.NEXTVAL, :NEW.학번, :NEW.게시글번호);
+        END IF;
+    END;
 END;
 
 -- increment_favorite_count_on_add: 즐겨찾기가 추가 됐을 시, 게시글의 즐겨찾기 횟수를 1회 증가
@@ -118,9 +127,29 @@ CREATE OR REPLACE TRIGGER increment_favorite_count_on_add
     FOR EACH ROW
 BEGIN
     -- 즐겨찾기가 추가되었을 때, 해당 게시글의 즐겨찾기 횟수 증가
-    UPDATE 물품게시글
-    SET 즐겨찾기횟수 = 즐겨찾기횟수 + 1
+    UPDATE 게시글
+    SET 즐겨찾기수 = 즐겨찾기수 + 1
     WHERE 게시글번호 = :NEW.게시글번호;
+END;
+
+-- post_count: 학생이 게시글 등록 시 게시글등록수 +1, 삭제시 -1
+CREATE OR REPLACE TRIGGER post_count
+    AFTER INSERT OR DELETE ON 물품게시글
+    FOR EACH ROW
+BEGIN
+    -- INSERT 이벤트: 게시글등록수 +1
+    IF INSERTING THEN
+        UPDATE 학생
+        SET 게시글등록수 = 게시글등록수 + 1
+        WHERE 학번 = :NEW.학번;
+    END IF;
+
+    -- DELETE 이벤트: 게시글등록수 -1
+    IF DELETING THEN
+        UPDATE 학생
+        SET 게시글등록수 = 게시글등록수 - 1
+        WHERE 학번 = :OLD.학번;
+    END IF;
 END;
 
 -- delete_favorites_on_student_exit: 학생이 탈퇴 시 해당 학생의 즐겨찾기 목록 삭제
@@ -157,25 +186,4 @@ BEGIN
     UPDATE 물품게시글 
     SET 게시글활성화여부 = 'N'
     WHERE 학번 = :OLD.학번;
-END;
-
-
--- post_count: 학생이 게시글 등록 시 게시글등록수 +1, 삭제시 -1
-CREATE OR REPLACE TRIGGER post_count
-    AFTER INSERT OR DELETE ON 물품게시글
-    FOR EACH ROW
-BEGIN
-    -- INSERT 이벤트: 게시글등록수 +1
-    IF INSERTING THEN
-        UPDATE 학생
-        SET 게시글등록수 = 게시글등록수 + 1
-        WHERE 학번 = :NEW.학번;
-    END IF;
-
-    -- DELETE 이벤트: 게시글등록수 -1
-    IF DELETING THEN
-        UPDATE 학생
-        SET 게시글등록수 = 게시글등록수 - 1
-        WHERE 학번 = :OLD.학번;
-    END IF;
 END;
