@@ -18,16 +18,16 @@ public class NoteService {
     private final NoteRepository noteRepository;
 
     @Autowired
-    private PostService postService;
-
-    @Autowired
-    private StudentService studentService;
-
-    @Autowired
     public NoteService(NoteRepository noteRepository) {
         this.noteRepository = noteRepository;
     }
 
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private StudentService studentService;
+    
     @Transactional
     public List<MyMessageDto> getMyMessageList(int studentNumber) {
         return noteRepository.findNotesByStudentId(studentNumber);
@@ -71,5 +71,10 @@ public class NoteService {
     public Note getLastMessage(int noteId) {
         return noteRepository.findById(noteId)
                 .orElseThrow(() -> new RuntimeException("쪽지 내용을 찾을 수 없습니다."));
+    }
+
+    @Transactional
+    public void deleteMessages(Post post) {
+        noteRepository.deleteByPostId(post);
     }
 }

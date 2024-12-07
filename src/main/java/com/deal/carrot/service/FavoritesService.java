@@ -17,15 +17,15 @@ public class FavoritesService {
     private final FavoritesRepository favoritesRepository;
 
     @Autowired
+    public FavoritesService(FavoritesRepository favoritesRepository) {
+        this.favoritesRepository = favoritesRepository;
+    }
+
+    @Autowired
     private PostService postService;
 
     @Autowired
     private StudentService studentService;
-
-    @Autowired
-    public FavoritesService(FavoritesRepository favoritesRepository) {
-        this.favoritesRepository = favoritesRepository;
-    }
 
     @Transactional
     public List<Favorites> getFavoritesList(int studentNumber) {
@@ -41,18 +41,18 @@ public class FavoritesService {
 
     @Transactional
     public ResponseDTO favoritePost(int postId, int studentNumber) {
-        try{
+        try {
             Post post = postService.getPostDetail(postId);
             Student student = studentService.getStudentInfo(studentNumber);
 
             Favorites favorites = this.getFavoriteInfo(post, student);
             boolean isFavorites = favorites != null;
 
-            if(isFavorites) {
+            if (isFavorites) {
                 /* 삭제 */
                 int favoritesId = favorites.getFavoritesId();
                 favoritesRepository.deleteById(favoritesId);
-            }else {
+            } else {
                 /* 등록 */
                 Favorites form = new Favorites();
                 form.setPostId(post);
@@ -65,5 +65,10 @@ public class FavoritesService {
             e.printStackTrace();
             return new ResponseDTO(false, "즐겨찾기 제어 실패");
         }
+    }
+
+    @Transactional
+    public void deleteFavorites(Post post) {
+        favoritesRepository.deleteByPostId(post);
     }
 }

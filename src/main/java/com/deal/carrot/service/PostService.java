@@ -20,12 +20,18 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Autowired
-    private StudentService studentService;
-
-    @Autowired
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
+
+    @Autowired
+    private StudentService studentService;
+
+    @Autowired
+    private FavoritesService favoritesService;
+
+    @Autowired
+    private NoteService noteService;
 
     @Transactional
     public ResponseDTO createPost(CreatePostForm form, int studentNumber) {
@@ -37,6 +43,17 @@ public class PostService {
         postRepository.save(post);   // 회원 저장
 
         return new ResponseDTO(true, "게시글 작성 성공");
+    }
+
+    @Transactional
+    public ResponseDTO deletePost(int postId) {
+        /* 게시글 삭제시 쪽지 및 즐겨찾기 모두 삭제 처리 */
+        Post post = this.getPostDetail(postId);
+
+        favoritesService.deleteFavorites(post); // 즐겨찾기 삭제
+        noteService.deleteMessages(post);
+        postRepository.deleteById(postId);
+        return new ResponseDTO(true, "게시글 삭제 성공");
     }
 
     @Transactional

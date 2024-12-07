@@ -11,6 +11,9 @@ import java.util.List;
 @Repository
 public interface FavoritesRepository extends JpaRepository<Favorites, Integer> {
     Favorites findByPostIdAndStudentNumber(Post post, Student student);
+
     List<Favorites> findAllByStudentNumber(Student student);
+
+    void deleteByPostId(Post post);
 }
 

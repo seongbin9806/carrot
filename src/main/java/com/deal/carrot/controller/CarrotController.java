@@ -104,10 +104,20 @@ public class CarrotController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/deletePost")
+    public ResponseEntity<ResponseDTO> deletePost(int postId) {
+        ResponseDTO response = postService.deletePost(postId);
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/itemDetails")
     public String itemDetails(@RequestParam("postId") int postId, Model model, HttpSession session) {
         int studentNumber = (int) session.getAttribute("studentNumber");
         Post postInfo = postService.getPostDetail(postId);
+
+        /* 나의 게시글인지 체크 */
+        boolean isMyPost = (postInfo.getStudent().getStudentNumber() == studentNumber);
 
         /* 즐겨찾기 여부 체크 */
         Post post = postService.getPostDetail(postId);
@@ -121,6 +131,7 @@ public class CarrotController {
 
         model.addAttribute("postInfo", postInfo);
         model.addAttribute("favoritesText", isFavorites ? "즐겨찾기 삭제" : "즐겨찾기 등록");
+        model.addAttribute("isMyPost", isMyPost);
 
         return "carrot/itemDetails";
     }

@@ -1,6 +1,7 @@
 package com.deal.carrot.repository;
 
 import com.deal.carrot.entity.Note;
+import com.deal.carrot.entity.Post;
 import com.deal.carrot.entity.Student;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -16,6 +17,8 @@ public interface NoteRepository extends JpaRepository<Note, Integer>, NoteReposi
 
     @PersistenceContext
     EntityManager entityManager = null;
+
+    void deleteByPostId(Post post);
 
     @Query("SELECT n FROM Note n WHERE n.postId.id = :postId AND " +
             "( (n.studentNumber = :studentNumber AND n.receiveStudentNumber = :receiveStudentNumber) OR " +

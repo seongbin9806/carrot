@@ -133,6 +133,12 @@
             class="btn-message">쪽지 보내기</a>
             <a class="btn-favorite" onclick="favoritePost({{postInfo.postId}})"
                style="cursor:pointer">{{favoritesText}}</a>
+
+            {{#isMyPost}}
+                <button class="btn-message" style="background: red; color: #fff;"
+                        onclick="deletePost({{postInfo.postId}})">게시글 삭제
+                </button>
+            {{/isMyPost}}
         </div>
     </div>
 
@@ -156,6 +162,22 @@
         }
 
         location.reload();
+    }
+
+    async function deletePost(postId) {
+        if(!confirm("해당 게시글을 삭제하시겠습니까?")) return;
+
+        const deletePostRes = await util.fetchJsonData('/deletePost', {
+            postId: postId
+        });
+
+        if(!deletePostRes.result){
+            alert(deletePostRes.msg);
+            return;
+        }
+
+        alert("삭제되었습니다.");
+        location.href= "/";
     }
 </script>
 </body>

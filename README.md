@@ -132,6 +132,17 @@ BEGIN
     WHERE 게시글번호 = :NEW.게시글번호;
 END;
 
+-- decrement_favorite_count_on_remove: 즐겨찾기가 삭제되었을 시, 게시글의 즐겨찾기 횟수를 1회 감소
+CREATE OR REPLACE TRIGGER decrement_favorite_count_on_remove
+    AFTER DELETE ON 즐겨찾기
+    FOR EACH ROW
+BEGIN
+    -- 즐겨찾기가 삭제되었을 때, 해당 게시글의 즐겨찾기 횟수 감소
+    UPDATE 게시글
+    SET 즐겨찾기수 = 즐겨찾기수 - 1
+    WHERE 게시글번호 = :OLD.게시글번호;
+END;
+
 -- post_count: 학생이 게시글 등록 시 게시글등록수 +1, 삭제시 -1
 CREATE OR REPLACE TRIGGER post_count
     AFTER INSERT OR DELETE ON 물품게시글
