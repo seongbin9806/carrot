@@ -62,6 +62,11 @@
             margin: 20px 0;
         }
 
+        .tableWrap {
+            max-height: 400px;
+            overflow: auto;
+        }
+
         table {
             width: 80%;
             margin: 0 auto;
@@ -107,22 +112,24 @@
         <a href="/admin/category">카테고리</a>
     </div>
     <h1>학과 정보</h1>
-    <table>
-        <thead>
-        <tr>
-            <th>학과명</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#departmentList}}
+    <div class="tableWrap">
+        <table>
+            <thead>
             <tr>
-                <td>
-                    {{departmentName}}
-                </td>
+                <th>학과명</th>
             </tr>
-        {{/departmentList}}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            {{#departmentList}}
+                <tr>
+                    <td>
+                        {{departmentName}}
+                    </td>
+                </tr>
+            {{/departmentList}}
+            </tbody>
+        </table>
+    </div>
     <div class="footer">
         <form onsubmit="addDepartment(event)" method="post">
             <input type="text" name="departmentName" value="" placeholder="학과명" required>

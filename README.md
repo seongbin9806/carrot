@@ -20,7 +20,7 @@ GRANT connect, resource, dba TO CARROT; -- 권한 부여
 ----------------------------------------------------------------
 -------------------- 데이터 및 테이블 삭제  ---------------------- 
 ----------------------------------------------------------------
-DROP TABLE 물품게시글 CASCADE CONSTRAINTS;
+DROP TABLE 게시글 CASCADE CONSTRAINTS;
 DROP TABLE 즐겨찾기 CASCADE CONSTRAINTS;
 DROP TABLE 쪽지 CASCADE CONSTRAINTS;
 DROP TABLE 카테고리 CASCADE CONSTRAINTS;
@@ -31,7 +31,6 @@ DROP TABLE 학생 CASCADE CONSTRAINTS;
 ------------------------ 저장 프로시저  -------------------------- 
 ----------------------------------------------------------------
 
--- 물품 게시글 작성 날짜 표시 저장 프로시저
 -- 물품 게시글 작성 날짜 표시 저장 프로시저
 create or replace NONEDITIONABLE PROCEDURE PostDateProcedure(
     post_number IN NUMBER,      -- 게시글번호 입력
@@ -97,8 +96,8 @@ END;
 --------------------------- 트리거  ----------------------------- 
 ----------------------------------------------------------------
 
--- add_favorite_on_message: 학생이 게시글에 쪽지를 보낼 때 해당 게시글을 즐겨찾기에 추가
-CREATE OR REPLACE NONEDITIONABLE TRIGGER add_favorite_on_message
+-- 게시글에 쪽지를 보낼 때 해당 게시글을 즐겨찾기에 추가
+create or replace NONEDITIONABLE TRIGGER add_favorite_on_message
     AFTER INSERT 
     ON 쪽지
     FOR EACH ROW
@@ -121,8 +120,8 @@ BEGIN
     END;
 END;
 
--- increment_favorite_count_on_add: 즐겨찾기가 추가 됐을 시, 게시글의 즐겨찾기 횟수를 1회 증가
-CREATE OR REPLACE TRIGGER increment_favorite_count_on_add
+-- 즐겨찾기가 추가 됐을 시, 게시글의 즐겨찾기 횟수를 1회 증가
+create or replace NONEDITIONABLE TRIGGER increment_favorite_count_on_add
     AFTER INSERT ON 즐겨찾기
     FOR EACH ROW
 BEGIN
@@ -132,20 +131,30 @@ BEGIN
     WHERE 게시글번호 = :NEW.게시글번호;
 END;
 
--- decrement_favorite_count_on_remove: 즐겨찾기가 삭제되었을 시, 게시글의 즐겨찾기 횟수를 1회 감소
-CREATE OR REPLACE TRIGGER decrement_favorite_count_on_remove
-    AFTER DELETE ON 즐겨찾기
-    FOR EACH ROW
+
+-- 즐겨찾기가 삭제되었을 시, 게시글의 즐겨찾기 횟수를 1회 감소
+create or replace NONEDITIONABLE TRIGGER increment_favorite_count_on_remove
+AFTER DELETE ON 즐겨찾기
+FOR EACH ROW
+DECLARE
+    favorite_count NUMBER;  -- 즐겨찾기횟수를 저장할 변수
 BEGIN
-    -- 즐겨찾기가 삭제되었을 때, 해당 게시글의 즐겨찾기 횟수 감소
-    UPDATE 게시글
-    SET 즐겨찾기수 = 즐겨찾기수 - 1
+    -- 삭제되는 즐겨찾기에 게시글번호를 favorite_count 변수에 저장
+    SELECT 즐겨찾기수 INTO favorite_count
+    FROM 게시글
     WHERE 게시글번호 = :OLD.게시글번호;
+
+    -- 즐겨찾기횟수가 음수가 되면 안 되기 때문에 0 보다 클 때만 수행
+    IF favorite_count > 0 THEN
+        UPDATE 게시글
+        SET 즐겨찾기수 = 즐겨찾기수 - 1
+        WHERE 게시글번호 = :OLD.게시글번호;
+    END IF;
 END;
 
--- post_count: 학생이 게시글 등록 시 게시글등록수 +1, 삭제시 -1
-CREATE OR REPLACE TRIGGER post_count
-    AFTER INSERT OR DELETE ON 물품게시글
+-- 학생이 게시글 등록 시 게시글등록수 1회 증가(insert), 삭제시 1회 감소
+create or replace NONEDITIONABLE TRIGGER post_count
+    AFTER INSERT OR DELETE ON 게시글
     FOR EACH ROW
 BEGIN
     -- INSERT 이벤트: 게시글등록수 +1
@@ -163,38 +172,14 @@ BEGIN
     END IF;
 END;
 
--- delete_favorites_on_student_exit: 학생이 탈퇴 시 해당 학생의 즐겨찾기 목록 삭제
-CREATE OR REPLACE TRIGGER delete_favorites_on_student_exit
+-- 학생이 탈퇴를 했을경우 즐겨찾기 삭제 및 게시글 비활성화 처리
+create or replace NONEDITIONABLE TRIGGER student_exit
 AFTER UPDATE OF 탈퇴여부 ON 학생
 FOR EACH ROW
 BEGIN
     -- 탈퇴여부가 'Y'로 변경된 경우 실행
     IF :NEW.탈퇴여부 = 'Y' THEN
-        DELETE FROM 즐겨찾기 WHERE 학번 = :NEW.학번;
+        DELETE FROM 즐겨찾기 WHERE 학번 = :NEW.학번;      
+        UPDATE 게시글 SET 게시글활성여부 = 'N' WHERE 학번 = :NEW.학번;
     END IF;
-END;
-
--- update_post_on_favorite_delete: 즐겨찾기 삭제 시 물품게시글에 즐겨찾기횟수 감소 및 게시글 비활성화
-CREATE OR REPLACE TRIGGER update_post_on_favorite_delete
-AFTER DELETE ON 즐겨찾기
-FOR EACH ROW
-DECLARE
-    favorite_count NUMBER;  -- 즐겨찾기횟수를 저장할 변수
-BEGIN
-    -- 삭제되는 즐겨찾기에 게시글번호를 favorite_count 변수에 저장
-    SELECT 즐겨찾기횟수 INTO favorite_count
-    FROM 물품게시글
-    WHERE 게시글번호 = :OLD.게시글번호;
-    
-    -- 즐겨찾기횟수가 음수가 되면 안 되기 때문에 0 보다 클 때만 수행
-    IF favorite_count > 0 THEN
-        UPDATE 물품게시글
-        SET 즐겨찾기횟수 = 즐겨찾기횟수 - 1
-        WHERE 게시글번호 = :OLD.게시글번호;
-    END IF;
-    
-    -- 게시글 비활성화
-    UPDATE 물품게시글 
-    SET 게시글활성화여부 = 'N'
-    WHERE 학번 = :OLD.학번;
 END;

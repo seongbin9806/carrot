@@ -62,6 +62,10 @@
             margin: 20px 0;
         }
 
+        .tableWrap {
+            max-height: 400px;
+            overflow: auto;
+        }
         table {
             width: 80%;
             margin: 0 auto;
@@ -101,53 +105,55 @@
     <script type="text/javascript" src="/assets/js/util.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <a href="/admin/department">학과정보</a>
-            <a href="/admin/category">카테고리</a>
-        </div>
-        <h1>카테고리</h1>
+<div class="container">
+    <div class="header">
+        <a href="/admin/department">학과정보</a>
+        <a href="/admin/category">카테고리</a>
+    </div>
+    <h1>카테고리</h1>
+    <div class="tableWrap">
         <table>
             <thead>
-                <tr>
-                    <th>카테고리명</th>
-                </tr>
+            <tr>
+                <th>카테고리명</th>
+            </tr>
             </thead>
             <tbody>
-                {{#categoryList}}
+            {{#categoryList}}
                 <tr>
                     <td>
                         {{categoryName}}
                     </td>
                 </tr>
-                {{/categoryList}}
+            {{/categoryList}}
             </tbody>
         </table>
-        <div class="footer">
-            <form onsubmit="addCategory(event)" method="post">
-                <input type="text" name="categoryName" value="" placeholder="카테고리명" required>
-                <button type="submit">카테고리 등록</button>
-            </form>
-        </div>
     </div>
+    <div class="footer">
+        <form onsubmit="addCategory(event)" method="post">
+            <input type="text" name="categoryName" value="" placeholder="카테고리명" required>
+            <button type="submit">카테고리 등록</button>
+        </form>
+    </div>
+</div>
 
-    <script>
-        async function addCategory(event) {
-            event.preventDefault();
+<script>
+    async function addCategory(event) {
+        event.preventDefault();
 
-            let formData = new FormData(event.target);
+        let formData = new FormData(event.target);
 
-            const addCategoryRes = await util.fetchJsonData('/admin/addCategory', {
-                categoryName: formData.get('categoryName'),
-            });
+        const addCategoryRes = await util.fetchJsonData('/admin/addCategory', {
+            categoryName: formData.get('categoryName'),
+        });
 
-            if(!addCategoryRes.result){
-                alert(addCategoryRes.msg);
-                return;
-            }
-
-            alert('카테고리가 등록되었습니다.');
-            location.reload();
+        if(!addCategoryRes.result){
+            alert(addCategoryRes.msg);
+            return;
         }
-    </script>
+
+        alert('카테고리가 등록되었습니다.');
+        location.reload();
+    }
+</script>
 </body>

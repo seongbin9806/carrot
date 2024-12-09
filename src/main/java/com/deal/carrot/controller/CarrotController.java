@@ -111,6 +111,16 @@ public class CarrotController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/deleteUser")
+    public ResponseEntity<ResponseDTO> deleteUser(HttpSession session) {
+        int studentNumber = (int) session.getAttribute("studentNumber");
+
+        ResponseDTO response = studentService.deleteUser(studentNumber);
+        session.invalidate();  // 세션 무효화
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/itemDetails")
     public String itemDetails(@RequestParam("postId") int postId, Model model, HttpSession session) {
         int studentNumber = (int) session.getAttribute("studentNumber");

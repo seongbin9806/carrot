@@ -60,7 +60,8 @@ public class PostService {
     public List<Post> getPostList(String keyword, String categoryName, String departmentName) {
         Specification<Post> spec = Specification.where(PostSpecification.hasKeyword(keyword))
                 .and(PostSpecification.hasCategory(categoryName))
-                .and(PostSpecification.hasDepartment(departmentName));
+                .and(PostSpecification.hasDepartment(departmentName))
+                .and(PostSpecification.isUseY());
 
         return postRepository.findAll(spec, Sort.by(Sort.Order.desc("regDate")));
     }

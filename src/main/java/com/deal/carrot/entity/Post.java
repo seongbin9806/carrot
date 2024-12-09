@@ -48,6 +48,9 @@ public class Post {
     @Column(name = "등록날짜")
     private LocalDateTime regDate;
 
+    @Column(name = "게시글활성여부")
+    private char isUse = 'Y';
+
     @Transient
     private String formatRegDate = "";
 

@@ -36,4 +36,8 @@ public class PostSpecification {
             return criteriaBuilder.equal(studentJoin.get("departmentName"), departmentName);
         };
     }
+
+    public static Specification<Post> isUseY() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("isUse"), "Y");
+    }
 }

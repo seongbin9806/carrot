@@ -45,7 +45,7 @@
             border-radius: 4px;
             font-size: 14px;
             cursor: pointer;
-            width: 85px;
+            width: 102px;
             text-align: center;
         }
 
@@ -120,6 +120,7 @@
             <a href="/favoritesList">즐겨찾기</a>
             <a href="/messageList">쪽지함</a>
             <a href="/createItem">글작성</a>
+            <a style="background: red; cursor:pointer;" onclick="deleteUser()">회원탈퇴 하기</a>
         </div>
     </div>
 
@@ -158,3 +159,19 @@
     {{/postList}}
 </div>
 </body>
+
+<script>
+    async function deleteUser() {
+        if(!confirm("탈퇴 하시겠습니까?")) return;
+
+        const deleteUserRes = await util.fetchJsonData('/deleteUser', {});
+
+        if(!deleteUserRes.result){
+            alert(deleteUserRes.msg);
+            return;
+        }
+
+        alert("탈퇴되었습니다.");
+        location.href= "/signIn";
+    }
+</script>
